@@ -1,8 +1,13 @@
 # self-signed-ca-chain
-Self Signed Certificate Authority Chain Framework
 
-`openssl genrsa -aes256 -out root-ca/private/ca.key.pem 4096`
-`chmod 400 root-ca/private/ca.key.pem`
+__Self-Signed Certificate Authority Chain Framework__
+
+This repository is a templated framework to guide the creation of a self-signed certificate authority, along with intermediate certificates and leaf certificates.
+
+```
+openssl genrsa -aes256 -out root-ca/private/ca.key.pem 4096
+chmod 400 root-ca/private/ca.key.pem
+```
 
 ```
 openssl req -config self-signed-ca-chain-openssl.cnf -x509 -extensions v3_ca \
@@ -13,8 +18,10 @@ chmod 444 root-ca/certs/ca.cert.pem
 openssl x509 -noout -text -in root-ca/certs/ca.cert.pem | less
 ```
 
-`openssl genrsa -aes256 -out intermediate-ca/private/intermediate.key.pem 4096`
-`chmod 400 intermediate-ca/private/intermediate.key.pem`
+```
+openssl genrsa -aes256 -out intermediate-ca/private/intermediate.key.pem 4096
+chmod 400 intermediate-ca/private/intermediate.key.pem
+```
 
 ```
 openssl req -config self-signed-ca-chain-openssl.cnf \
@@ -34,8 +41,10 @@ openssl verify -CAfile root-ca/certs/ca.cert.pem intermediate-ca/certs/intermedi
 cat intermediate-ca/certs/intermediate.cert.pem root-ca/certs/ca.cert.pem > intermediate-ca/certs/intermediate-ca-chain.cert.pem
 ```
 
-`openssl genrsa -aes256 -out intermediate-ca/private/www.example.com.key.pem 2048`
-`chmod 400 intermediate-ca/private/www.example.com.key.pem`
+```
+openssl genrsa -aes256 -out intermediate-ca/private/www.example.com.key.pem 2048
+chmod 400 intermediate-ca/private/www.example.com.key.pem
+```
 
 ```
 openssl req -config self-signed-ca-chain-openssl.cnf \
