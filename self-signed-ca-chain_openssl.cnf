@@ -1,12 +1,15 @@
 # OpenSSL CA configuration file.
 
+####################################################################
 [ ca ]
 # `man ca`
-default_ca = root_ca
+default_ca = root-ca
 
-[ root_ca ]
+[ root-ca ]
 # Directory and file locations.
-dir               = /ABSOLUTE/PATH/TO/self-signed-ca-chain/root-ca
+basename          = root-ca
+root_dir          = /ABSOLUTE/PATH/TO/self-signed-ca-chain
+dir               = $root_dir/$basename
 certs             = $dir/certs
 crl_dir           = $dir/crl
 new_certs_dir     = $dir/newcerts
@@ -15,12 +18,12 @@ serial            = $dir/serial
 RANDFILE          = $dir/private/.rand
 
 # The root key and root certificate.
-private_key       = $dir/private/ca.key.pem
-certificate       = $dir/certs/ca.cert.pem
+private_key       = $dir/private/$basename.key.pem
+certificate       = $dir/certs/$basename.cert.pem
 
 # For certificate revocation lists.
 crlnumber         = $dir/crlnumber
-crl               = $dir/crl/ca.crl.pem
+crl               = $dir/crl/$basename.crl.pem
 crl_extensions    = crl_ext
 default_crl_days  = 30
 
@@ -33,9 +36,11 @@ default_days      = 375
 preserve          = no
 policy            = policy_strict
 
-[ intermediate_ca ]
+[ intermediate-ca ]
 # Directory and file locations.
-dir               = /ABSOLUTE/PATH/TO/self-signed-ca-chain/intermediate-ca
+basename          = intermediate-ca
+root_dir          = /ABSOLUTE/PATH/TO/self-signed-ca-chain
+dir               = $root_dir/$basename
 certs             = $dir/certs
 crl_dir           = $dir/crl
 new_certs_dir     = $dir/newcerts
@@ -44,12 +49,12 @@ serial            = $dir/serial
 RANDFILE          = $dir/private/.rand
 
 # The intermediate key and intermediate certificate.
-private_key       = $dir/private/intermediate.key.pem
-certificate       = $dir/certs/intermediate.cert.pem
+private_key       = $dir/private/$basename.key.pem
+certificate       = $dir/certs/$basename.cert.pem
 
 # For certificate revocation lists.
 crlnumber         = $dir/crlnumber
-crl               = $dir/crl/intermediate.crl.pem
+crl               = $dir/crl/$basename.crl.pem
 crl_extensions    = crl_ext
 default_crl_days  = 30
 
@@ -83,6 +88,7 @@ organizationalUnitName  = optional
 commonName              = supplied
 emailAddress            = optional
 
+####################################################################
 [ req ]
 # Options for the `req` tool (`man req`).
 default_bits        = 2048
@@ -127,6 +133,7 @@ authorityKeyIdentifier = keyid:always,issuer
 basicConstraints = critical, CA:true, pathlen:0
 keyUsage = critical, digitalSignature, cRLSign, keyCertSign
 
+####################################################################
 [ usr_cert ]
 # Extensions for client certificates (`man x509v3_config`).
 basicConstraints = CA:FALSE
@@ -147,10 +154,12 @@ authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
 
+####################################################################
 [ crl_ext ]
 # Extension for CRLs (`man x509v3_config`).
 authorityKeyIdentifier=keyid:always
 
+####################################################################
 [ ocsp ]
 # Extension for OCSP signing certificates (`man ocsp`).
 basicConstraints = CA:FALSE

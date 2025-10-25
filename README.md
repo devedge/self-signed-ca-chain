@@ -2,63 +2,66 @@
 
 __Self-Signed Certificate Authority Chain Framework__
 
-This repository is a templated framework to guide the creation of a self-signed certificate authority, along with intermediate certificates and leaf certificates.
+This repository is a templated framework to guide the creation of a self-signed certificate authority using `openssl`, along with intermediate certificates and leaf certificates.
 
 ```
-openssl genrsa -aes256 -out root-ca/private/ca.key.pem 4096
-chmod 400 root-ca/private/ca.key.pem
-```
-
-```
-openssl req -config self-signed-ca-chain-openssl.cnf -x509 -extensions v3_ca \
-      -new -days 7300 -sha256 \
-      -key root-ca/private/ca.key.pem \
-      -out root-ca/certs/ca.cert.pem
-chmod 444 root-ca/certs/ca.cert.pem
-openssl x509 -noout -text -in root-ca/certs/ca.cert.pem | less
+export ROOT_CA_NAME="root-ca"
+export INTERMEDIATE_CA_NAME="intermediate-ca"
 ```
 
 ```
-openssl genrsa -aes256 -out intermediate-ca/private/intermediate.key.pem 4096
-chmod 400 intermediate-ca/private/intermediate.key.pem
+openssl genrsa -aes256 -out $ROOT_CA_NAME/private/$ROOT_CA_NAME.key.pem 4096
+chmod 400 $ROOT_CA_NAME/private/$ROOT_CA_NAME.key.pem
 ```
 
 ```
-openssl req -config self-signed-ca-chain-openssl.cnf \
-    -new -sha256 \
-    -key intermediate-ca/private/intermediate.key.pem \
-    -out intermediate-ca/csr/intermediate.csr.pem
+openssl req -config self-signed-ca-chain_openssl.cnf -x509 -extensions v3_ca \
+      -new -days 7300 \
+      -key $ROOT_CA_NAME/private/$ROOT_CA_NAME.key.pem \
+      -out $ROOT_CA_NAME/certs/$ROOT_CA_NAME.cert.pem
+chmod 444 $ROOT_CA_NAME/certs/$ROOT_CA_NAME.cert.pem
+openssl x509 -noout -text -in $ROOT_CA_NAME/certs/$ROOT_CA_NAME.cert.pem | less
 ```
 
 ```
-openssl ca -config self-signed-ca-chain-openssl.cnf -name root_ca -extensions v3_intermediate_ca \
-    -days 3650 -notext -md sha256 \
-    -in intermediate-ca/csr/intermediate.csr.pem \
-    -out intermediate-ca/certs/intermediate.cert.pem
-chmod 444 intermediate-ca/certs/intermediate.cert.pem
-openssl x509 -noout -text -in intermediate-ca/certs/intermediate.cert.pem | less
-openssl verify -CAfile root-ca/certs/ca.cert.pem intermediate-ca/certs/intermediate.cert.pem
-cat intermediate-ca/certs/intermediate.cert.pem root-ca/certs/ca.cert.pem > intermediate-ca/certs/intermediate-ca-chain.cert.pem
+openssl genrsa -aes256 -out $INTERMEDIATE_CA_NAME/private/$INTERMEDIATE_CA_NAME.key.pem 4096
+chmod 400 $INTERMEDIATE_CA_NAME/private/$INTERMEDIATE_CA_NAME.key.pem
 ```
 
 ```
-openssl genrsa -aes256 -out intermediate-ca/private/www.example.com.key.pem 2048
-chmod 400 intermediate-ca/private/www.example.com.key.pem
+openssl req -config self-signed-ca-chain_openssl.cnf -new \
+    -key $INTERMEDIATE_CA_NAME/private/$INTERMEDIATE_CA_NAME.key.pem \
+    -out $INTERMEDIATE_CA_NAME/csr/$INTERMEDIATE_CA_NAME.csr.pem
 ```
 
 ```
-openssl req -config self-signed-ca-chain-openssl.cnf \
-    -new -sha256 \
-    -key intermediate-ca/private/www.example.com.key.pem \
-    -out intermediate-ca/csr/www.example.com.csr.pem
+openssl ca -config self-signed-ca-chain_openssl.cnf -name $ROOT_CA_NAME -extensions v3_intermediate_ca \
+    -days 3650 -notext \
+    -in $INTERMEDIATE_CA_NAME/csr/$INTERMEDIATE_CA_NAME.csr.pem \
+    -out $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME.cert.pem
+chmod 444 $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME.cert.pem
+openssl x509 -noout -text -in $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME.cert.pem | less
+openssl verify -CAfile $ROOT_CA_NAME/certs/$ROOT_CA_NAME.cert.pem $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME.cert.pem
+cat $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME.cert.pem $ROOT_CA_NAME/certs/$ROOT_CA_NAME.cert.pem > $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME-chain.cert.pem
 ```
 
 ```
-openssl ca -config self-signed-ca-chain-openssl.cnf -name intermediate_ca -extensions server_cert \
-    -days 375 -notext -md sha256 \
-    -in intermediate-ca/csr/www.example.com.csr.pem \
-    -out intermediate-ca/certs/www.example.com.cert.pem
-chmod 444 intermediate-ca/certs/www.example.com.cert.pem
-openssl x509 -noout -text -in intermediate-ca/certs/www.example.com.cert.pem | less
-openssl verify -CAfile intermediate-ca/certs/intermediate-ca-chain.cert.pem intermediate-ca/certs/www.example.com.cert.pem
+openssl genrsa -aes256 -out $INTERMEDIATE_CA_NAME/private/www.example.com.key.pem 2048
+chmod 400 $INTERMEDIATE_CA_NAME/private/www.example.com.key.pem
+```
+
+```
+openssl req -config self-signed-ca-chain_openssl.cnf -new \
+    -key $INTERMEDIATE_CA_NAME/private/www.example.com.key.pem \
+    -out $INTERMEDIATE_CA_NAME/csr/www.example.com.csr.pem
+```
+
+```
+openssl ca -config self-signed-ca-chain_openssl.cnf -name $INTERMEDIATE_CA_NAME -extensions server_cert \
+    -days 375 -notext \
+    -in $INTERMEDIATE_CA_NAME/csr/www.example.com.csr.pem \
+    -out $INTERMEDIATE_CA_NAME/certs/www.example.com.cert.pem
+chmod 444 $INTERMEDIATE_CA_NAME/certs/www.example.com.cert.pem
+openssl x509 -noout -text -in $INTERMEDIATE_CA_NAME/certs/www.example.com.cert.pem | less
+openssl verify -CAfile $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME-chain.cert.pem $INTERMEDIATE_CA_NAME/certs/www.example.com.cert.pem
 ```
