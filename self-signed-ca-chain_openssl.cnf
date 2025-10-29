@@ -1,15 +1,25 @@
 # OpenSSL CA configuration file.
 
+# Default values for environment variables
+[ default ]
+# Default names for the Root CA and the Intermediate CA. These will
+# be used to create their directories and name the key/cert/crl files.
+ROOT_CA_NAME            = "root-ca"
+INTERMEDIATE_CA_NAME    = "intermediate-ca"
+
+# The Subject Alternative Name section to use when generating a leaf
+# certificate.
+SAN_SECTION             = @san_example
+
 ####################################################################
 [ ca ]
 # `man ca`
-default_ca = root-ca
+default_ca = root_ca
 
-[ root-ca ]
+[ root_ca ]
 # Directory and file locations.
-basename          = root-ca
-root_dir          = /ABSOLUTE/PATH/TO/self-signed-ca-chain
-dir               = $root_dir/$basename
+basename          = $ENV::ROOT_CA_NAME
+dir               = $ENV::PWD/$basename
 certs             = $dir/certs
 crl_dir           = $dir/crl
 new_certs_dir     = $dir/newcerts
@@ -36,11 +46,10 @@ default_days      = 375
 preserve          = no
 policy            = policy_strict
 
-[ intermediate-ca ]
+[ intermediate_ca ]
 # Directory and file locations.
-basename          = intermediate-ca
-root_dir          = /ABSOLUTE/PATH/TO/self-signed-ca-chain
-dir               = $root_dir/$basename
+basename          = $ENV::INTERMEDIATE_CA_NAME
+dir               = $ENV::PWD/$basename
 certs             = $dir/certs
 crl_dir           = $dir/crl
 new_certs_dir     = $dir/newcerts
@@ -149,6 +158,10 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
+subjectAltName = $ENV::SAN_SECTION
+
+[ san_example ]
+DNS.1 = www.example.com
 
 ####################################################################
 [ crl_ext ]
