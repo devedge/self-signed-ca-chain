@@ -79,20 +79,20 @@ The workflow will look like this:
 
 For the root CA:
 
-    - use `openssl genrsa` to create a private key
-    - use `openssl req` to generate a self-signed certificate
+- use `openssl genrsa` to create a private key
+- use `openssl req` to generate a self-signed certificate
 
 For the intermediate CA:
 
-    - use `openssl genrsa` to create a private key
-    - use `openssl req` to create a certificate signing request (CSR)
-    - use `openssl ca` to create the intermediate CA's certificate, using the root CA's configuration
+- use `openssl genrsa` to create a private key
+- use `openssl req` to create a certificate signing request (CSR)
+- use `openssl ca` to create the intermediate CA's certificate, using the root CA's configuration
 
 For subsequent leaf certificates:
 
-    - use `openssl genrsa` to create a private key
-    - use `openssl req` to create a certificate signing request (CSR)
-    - use `openssl ca` to create the leaf certificate, using the intermediate CA's configuration
+- use `openssl genrsa` to create a private key
+- use `openssl req` to create a certificate signing request (CSR)
+- use `openssl ca` to create the leaf certificate, using the intermediate CA's configuration
 
 
 ## Generate the root CA
@@ -101,6 +101,9 @@ Create a private key for the root CA and set it as read-only for only the user:
 
 ```bash
 openssl genrsa -aes256 -out $ROOT_CA_NAME/private/$ROOT_CA_NAME.key.pem 4096
+```
+
+```bash
 chmod u=r,go= $ROOT_CA_NAME/private/$ROOT_CA_NAME.key.pem
 ```
 
@@ -133,6 +136,9 @@ Create a private key for the intermediate CA and set it as read-only for only th
 
 ```bash
 openssl genrsa -aes256 -out $INTERMEDIATE_CA_NAME/private/$INTERMEDIATE_CA_NAME.key.pem 4096
+```
+
+```bash
 chmod u=r,go= $INTERMEDIATE_CA_NAME/private/$INTERMEDIATE_CA_NAME.key.pem
 ```
 
@@ -164,7 +170,7 @@ chmod ugo=r $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME.cert.pem
 The certificate can be inspected:
 
 ```bash
-openssl x509 -noout -text -in $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME.cert.pem | less
+openssl x509 -noout -text -in $INTERMEDIATE_CA_NAME/certs/$INTERMEDIATE_CA_NAME.cert.pem
 ```
 
 And the certificate can also be verified with the `openssl verify` subcommand:
@@ -186,6 +192,9 @@ Create a private key for a certificate for `www.example.com` and set it as read-
 
 ```bash
 openssl genrsa -aes256 -out $INTERMEDIATE_CA_NAME/private/www.example.com.key.pem 2048
+```
+
+```bash
 chmod u=r,go= $INTERMEDIATE_CA_NAME/private/www.example.com.key.pem
 ```
 
@@ -198,7 +207,7 @@ openssl req -config self-signed-ca-chain_openssl.cnf \
     -out $INTERMEDIATE_CA_NAME/csr/www.example.com.csr.pem
 ```
 
-Now, sign this CSR with the intermediate CA, specified with `-name intermediate_ca`. Use the `server_cert` extention in the configuration file to create a valid certificate for a TLS web server.
+Now, sign this CSR with the intermediate CA, specified with `-name intermediate_ca`. Use the `[ server_cert ]` extension in the configuration file to create a valid certificate for a TLS web server.
 
 Additionally, the `SAN_SECTION` variable is read here. This will use the `[ san_example ]` section in the `openssl` config file to add the specified Subject Alternative Names to the certificate:
 
